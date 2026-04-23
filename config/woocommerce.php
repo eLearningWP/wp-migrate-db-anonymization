@@ -3,11 +3,17 @@ return array(
 	'usermeta' => array(
 		'meta_value' => array(
 			array(
-				'constraint'     => array( 'meta_key' => 'billing_first_name' ),
+				'constraint'     => array(
+					'callback' => 'WPMDB\\Anonymization\\Config\\Constraint::is_not_whitelisted_user',
+					'meta_key' => 'billing_first_name',
+				),
 				'fake_data_type' => 'firstName',
 			),
 			array(
-				'constraint'     => array( 'meta_key' => 'billing_last_name' ),
+				'constraint'     => array(
+					'callback' => 'WPMDB\\Anonymization\\Config\\Constraint::is_not_whitelisted_user',
+					'meta_key' => 'billing_last_name',
+				),
 				'fake_data_type' => 'lastName',
 			),
 			array(
