@@ -68,7 +68,7 @@ class Migration {
 				continue;
 			}
 
-			return $rule->anonymize( $this->faker );
+			return $rule->anonymize( $this->faker, $row );
 		}
 
 		return $data;

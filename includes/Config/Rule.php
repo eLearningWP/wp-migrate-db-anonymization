@@ -86,18 +86,25 @@ class Rule {
 	}
 
 	protected function valid_constraint_callback( $row ) {
-		if ( ! is_string( $this->constraint ) ) {
+		if ( is_array( $this->constraint ) ) {
+			if ( empty( $this->constraint['callback'] ) || ! is_string( $this->constraint['callback'] ) ) {
+				return true;
+			}
+
+			$function = $this->constraint['callback'];
+		} elseif ( is_string( $this->constraint ) ) {
+			$function = $this->constraint;
+		} else {
 			return true;
 		}
 
 		$default_constraint_class = 'WPMDB\\Anonymization\\Config\\Constraint';
 
-		$function = $this->constraint;
 		if ( ! is_callable( $function ) ) {
-			if ( ! method_exists( $default_constraint_class, $this->constraint ) ) {
+			if ( ! method_exists( $default_constraint_class, $function ) ) {
 				return true;
 			}
-			$function = array( $default_constraint_class, $this->constraint );
+			$function = array( $default_constraint_class, $function );
 		}
 
 		return call_user_func( $function, $row );
@@ -109,8 +116,15 @@ class Rule {
 			return true;
 		}
 
-		$column = key( $this->constraint );
-		$value  = current( $this->constraint );
+		$column_constraints = $this->constraint;
+		unset( $column_constraints['callback'] );
+
+		if ( empty( $column_constraints ) ) {
+			return true;
+		}
+
+		$column = key( $column_constraints );
+		$value  = current( $column_constraints );
 
 		if ( ! isset( $row->{$column} ) ) {
 			return true;
@@ -123,7 +137,7 @@ class Rule {
 		return false;
 	}
 
-	public function anonymize( $faker ) {
+	public function anonymize( $faker, $row = null ) {
 		if ( empty( $this->fake_data_type ) ) {
 			return '';
 		}
@@ -134,9 +148,10 @@ class Rule {
 		}
 
 		$data = call_user_func_array( array( $faker, $this->fake_data_type ), $args );
+		$data = Replacement::maybe_deterministic( $data, $row, $this->table, $this->column, $this->constraint );
 
 		if ( ! empty( $this->post_process_function ) && is_callable( $this->post_process_function ) ) {
-			$data = call_user_func( $this->post_process_function, $data );
+			$data = call_user_func( $this->post_process_function, $data, $row );
 		}
 
 		return $data;
