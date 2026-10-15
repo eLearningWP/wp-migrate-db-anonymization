@@ -1,0 +1,33 @@
+{
+  "name": "wpmdb-pull-anonymizer",
+  "project": {
+    "type": "plugin",
+    "slug": "wpmdb-pull-anonymizer",
+    "entrypoint": "wpmdb-pull-anonymizer.php"
+  },
+  "defaults": {
+    "provider": "wp-env",
+    "profile": "minimal",
+    "port": 8888
+  },
+  "wordpress": {
+    "version": "latest",
+    "phpVersion": "8.2",
+    "plugins": [
+      "/Users/sdanessa/Projects/wp-migrate-db-anonymization/wp-migrate-db-pro"
+    ]
+  },
+  "profiles": {
+    "minimal": {
+      "wpEnv": {
+        "seed": [
+          ["plugin", "activate", "wp-migrate-db-pro"],
+          ["plugin", "activate", "wpmdb-pull-anonymizer/wpmdb-pull-anonymizer.php"]
+        ],
+        "verify": [
+          ["plugin", "status", "wpmdb-pull-anonymizer"]
+        ]
+      }
+    }
+  }
+}
